@@ -1,1 +1,344 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Shippori+Mincho:wght@400;500;600;700&display=swap');
+
+:root {
+  --paper: #f6f1e4;
+  --paper-deep: #ece2cc;
+  --ink: #3a2f22;
+  --ink-soft: #6b5a41;
+  --gold: #b8860b;
+  --gold-soft: #c9a24b;
+  --line: #c9b78d;
+  --serif-jp: 'Shippori Mincho', 'Hiragino Mincho ProN', serif;
+  --serif-en: 'Cormorant Garamond', serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--serif-jp);
+  color: var(--ink);
+  background: var(--paper);
+  /* うっすらとした古紙の質感 */
+  background-image:
+    radial-gradient(circle at 20% 15%, rgba(200, 180, 130, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 85%, rgba(180, 150, 90, 0.14), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 40, 0.015) 0 2px, transparent 2px 4px);
+  overflow: hidden;
+}
+
+.app {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* --- ヘッダー --- */
+.app-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  text-align: center;
+  padding: 26px 20px 10px;
+  pointer-events: none;
+}
+
+.app-eyebrow {
+  font-family: var(--serif-en);
+  font-style: italic;
+  letter-spacing: 0.25em;
+  font-size: 15px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.app-title {
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  margin: 4px 0 6px;
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.app-title::before,
+.app-title::after {
+  content: '❧';
+  color: var(--gold-soft);
+  font-size: 0.6em;
+  vertical-align: middle;
+  margin: 0 0.5em;
+}
+
+.app-subtitle {
+  font-size: clamp(12px, 1.6vw, 15px);
+  color: var(--ink-soft);
+  letter-spacing: 0.08em;
+}
+
+/* --- 操作ヒント --- */
+.app-hint {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  background: rgba(246, 241, 228, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px 14px;
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+/* --- キャンバス --- */
+.app-canvas {
+  position: absolute !important;
+  inset: 0;
+}
+
+/* --- フッター --- */
+.app-footer {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 5;
+  font-family: var(--serif-en);
+  font-style: italic;
+  letter-spacing: 0.14em;
+  font-size: 14px;
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+
+/* --- 3D上のラベル --- */
+.node-label {
+  font-family: var(--serif-jp);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ink);
+  background: rgba(246, 241, 228, 0.82);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(90, 70, 30, 0.15);
+}
+
+.node-label:hover {
+  background: var(--paper-deep);
+  border-color: var(--gold);
+}
+
+.node-label.is-animal {
+  color: #6b4a12;
+  border-color: var(--gold-soft);
+  border-style: double;
+  border-width: 2px;
+}
+
+.node-label.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--gold);
+}
+
+.node-label-hint {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 9.5px;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
+.node-label.is-selected .node-label-hint {
+  color: var(--gold-soft);
+}
+
+/* --- ポップアップ図鑑 --- */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(58, 47, 34, 0.35);
+  backdrop-filter: blur(3px);
+  animation: fade-in 0.25s ease;
+}
+
+.popup-card {
+  position: relative;
+  width: min(440px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--paper);
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(200, 175, 120, 0.15), transparent 60%);
+  border: 2px solid var(--gold-soft);
+  outline: 1px solid var(--line);
+  outline-offset: 5px;
+  border-radius: 3px;
+  padding: 34px 32px 30px;
+  box-shadow: 0 18px 50px rgba(58, 47, 34, 0.4);
+  text-align: center;
+  animation: pop-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+.popup-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--gold);
+}
+.popup-corner.tl { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+.popup-corner.tr { top: 8px; right: 8px; border-left: 0; border-bottom: 0; }
+.popup-corner.bl { bottom: 8px; left: 8px; border-right: 0; border-top: 0; }
+.popup-corner.br { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+
+.popup-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+}
+.popup-close:hover {
+  color: var(--gold);
+  transform: rotate(90deg);
+}
+
+.popup-kind {
+  font-family: var(--serif-en);
+  font-style: italic;
+  letter-spacing: 0.2em;
+  font-size: 13px;
+  color: var(--gold);
+}
+
+.popup-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 4px 0 2px;
+  color: var(--ink);
+}
+
+.popup-latin {
+  font-family: var(--serif-en);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+
+.popup-divider {
+  color: var(--gold-soft);
+  font-size: 18px;
+  margin: 14px 0;
+}
+
+.popup-era {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+  letter-spacing: 0.04em;
+}
+.popup-era-label {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--paper);
+  background: var(--gold-soft);
+  border-radius: 2px;
+  padding: 2px 7px;
+  margin-right: 6px;
+}
+
+.popup-summary {
+  font-size: 15.5px;
+  line-height: 2;
+  color: var(--ink);
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.popup-facts {
+  list-style: none;
+  text-align: left;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.popup-facts li {
+  position: relative;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--ink-soft);
+  padding-left: 22px;
+}
+.popup-facts li::before {
+  content: '❦';
+  position: absolute;
+  left: 2px;
+  color: var(--gold-soft);
+  font-size: 12px;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .app-hint {
+    top: auto;
+    bottom: 44px;
+    right: 50%;
+    transform: translateX(50%);
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 92vw;
+  }
+  .popup-title { font-size: 28px; }
+}
