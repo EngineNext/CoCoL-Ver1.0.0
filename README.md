@@ -1,16 +1,46 @@
-# React + Vite
+# 症状ナビ POC 🩺
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**症状を音声（または文章）で入力すると、考えられる疾患と受診をおすすめする診療科を提案する**Webアプリのプルーフ・オブ・コンセプト（技術検証）です。
 
-Currently, two official plugins are available:
+## 概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🎙️ **音声入力**：マイクに向かって症状を話すだけ（ブラウザの Web Speech API を利用、`ja-JP`）
+- ⌨️ **テキスト入力**：音声に対応していないブラウザ向けのフォールバックも用意
+- 🧠 **症状解析**：入力文からキーワードを抽出し、候補疾患・推奨診療科をスコアリング
+- 🚑 **レッドフラグ検知**：脳卒中・心筋梗塞など緊急性の高い症状を検出し警告
+- 📱 スマホ最適化のシンプルなUI（React + Tailwind CSS）
 
-## React Compiler
+外部APIキー不要で、すべてブラウザ内（クライアントサイド）で完結します。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## セットアップ
 
-## Expanding the ESLint configuration
+```bash
+npm install
+npm run dev      # 開発サーバー起動
+npm run build    # 本番ビルド
+npm run lint     # Lint
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+`npm run dev` で表示されるURLをブラウザで開き、マイクボタンをタップして症状を話すか、
+入力例のチップをタップして動作を試せます。
+
+> 音声入力には Chrome / Edge など Web Speech API 対応ブラウザと、HTTPS（または localhost）環境が必要です。
+
+## 構成
+
+| ファイル | 役割 |
+| --- | --- |
+| `src/App.jsx` | 画面・音声入力・結果表示のUI |
+| `src/symptomEngine.js` | 診療科・疾患のルール定義と解析ロジック |
+
+## 対応している診療科（POC範囲）
+
+内科 / 消化器内科 / 循環器内科 / 呼吸器内科 / 脳神経内科 / 耳鼻咽喉科 / 眼科 /
+皮膚科 / 整形外科 / 泌尿器科 / 婦人科 / 心療内科・精神科 / 歯科 / アレルギー科
+
+## ⚠️ 免責事項
+
+本アプリは**技術デモ（POC）であり、医療機器・診断ツールではありません**。
+表示される情報はあくまで受診の目安です。ルールベースの簡易的な判定であり、
+医学的な正確性を保証するものではありません。症状が重い・急に悪化した場合は、
+ためらわず医療機関の受診または救急要請（119）を行ってください。
