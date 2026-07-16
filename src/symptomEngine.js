@@ -23,6 +23,11 @@ export const DEPARTMENTS = {
   psych: { emoji: '🧩', label: { ja: '心療内科・精神科', en: 'Psychosomatic / Psychiatry' } },
   dental: { emoji: '🦷', label: { ja: '歯科・口腔外科', en: 'Dentistry / Oral Surgery' } },
   allergy: { emoji: '🌾', label: { ja: 'アレルギー科', en: 'Allergy' } },
+  endo: { emoji: '🩸', label: { ja: '内分泌代謝内科', en: 'Endocrinology / Metabolism' } },
+  pediatrics: { emoji: '🧒', label: { ja: '小児科', en: 'Pediatrics' } },
+  hematology: { emoji: '🩸', label: { ja: '血液内科', en: 'Hematology' } },
+  proctology: { emoji: '🚽', label: { ja: '肛門科', en: 'Proctology' } },
+  nephrology: { emoji: '🫘', label: { ja: '腎臓内科', en: 'Nephrology' } },
 };
 
 // 疾患ルール定義。
