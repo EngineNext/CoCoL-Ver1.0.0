@@ -9,9 +9,18 @@ import {
   RotateCcw,
   Volume2,
   Languages,
+  Settings,
+  FileText,
+  MapPin,
+  CalendarClock,
+  ChevronRight,
 } from 'lucide-react';
 import { analyzeSymptoms } from './symptomEngine';
 import { LANGUAGES, STRINGS } from './i18n';
+import ApiKeyModal from './ApiKeyModal';
+import IntakeForm from './IntakeForm';
+import HospitalMap from './HospitalMap';
+import BookingKit from './BookingKit';
 
 // 音声認識APIの取得（ブラウザ差異を吸収）
 const SpeechRecognition =
@@ -26,6 +35,9 @@ export default function App() {
   const [listening, setListening] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [analyzedText, setAnalyzedText] = useState('');
+  const [activeFeature, setActiveFeature] = useState(null); // 'intake' | 'map' | 'booking'
+  const [showApiModal, setShowApiModal] = useState(false);
   const recognitionRef = useRef(null);
   const supported = !!SpeechRecognition;
 
@@ -102,6 +114,8 @@ export default function App() {
       if (listening) stopListening();
       setError('');
       setResult(analyzeSymptoms(text, lang));
+      setAnalyzedText(text);
+      setActiveFeature(null);
     },
     [transcript, listening, stopListening, lang, t]
   );
@@ -111,11 +125,15 @@ export default function App() {
     setInterim('');
     setResult(null);
     setError('');
+    setAnalyzedText('');
+    setActiveFeature(null);
   };
 
   const applyExample = (text) => {
     setTranscript(text);
     setResult(analyzeSymptoms(text, lang));
+    setAnalyzedText(text);
+    setActiveFeature(null);
   };
 
   // 言語切替：認識を止め、結果は言語が変わるためクリア
@@ -126,13 +144,24 @@ export default function App() {
     setResult(null);
     setError('');
     setInterim('');
+    setActiveFeature(null);
   };
+
+  // 推奨診療科（日本語名）— 予約準備で使用
+  const topDeptJa = result?.departments?.[0]?.meta?.label?.ja || '';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-sky-100 text-slate-800">
       <div className="mx-auto max-w-2xl px-4 py-8">
-        {/* 言語切替 */}
-        <div className="mb-4 flex justify-end">
+        {/* 上部バー：AI設定 ＋ 言語切替 */}
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            onClick={() => setShowApiModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-medium text-slate-500 shadow-sm ring-1 ring-slate-200 transition hover:text-sky-700"
+          >
+            <Settings size={15} />
+            {t.settings}
+          </button>
           <div className="inline-flex items-center gap-1 rounded-full bg-white p-1 shadow-sm ring-1 ring-slate-200">
             <Languages size={16} className="ml-2 text-slate-400" />
             {LANGUAGES.map((l) => (
@@ -242,13 +271,99 @@ export default function App() {
         {/* 結果 */}
         {result && <Results result={result} t={t} lang={lang} />}
 
+        {/* 次のアクション */}
+        {result && result.matched && (
+          <NextActions t={t} active={activeFeature} onSelect={setActiveFeature} />
+        )}
+
+        {/* 選択された機能パネル */}
+        {result && activeFeature === 'intake' && (
+          <div className="mt-4">
+            <IntakeForm
+              t={t}
+              lang={lang}
+              symptomText={analyzedText}
+              onNeedKey={() => setShowApiModal(true)}
+            />
+          </div>
+        )}
+        {result && activeFeature === 'map' && (
+          <div className="mt-4">
+            <HospitalMap t={t} lang={lang} />
+          </div>
+        )}
+        {result && activeFeature === 'booking' && (
+          <div className="mt-4">
+            <BookingKit
+              t={t}
+              lang={lang}
+              symptomText={analyzedText}
+              departmentJa={topDeptJa}
+              onNeedKey={() => setShowApiModal(true)}
+            />
+          </div>
+        )}
+
         {/* 免責 */}
         <footer className="mt-6 rounded-xl bg-amber-50 p-4 text-xs leading-relaxed text-amber-800 ring-1 ring-amber-200">
           <strong>{t.disclaimerStrong}</strong>
           {t.disclaimer}
         </footer>
       </div>
+
+      {showApiModal && <ApiKeyModal t={t} onClose={() => setShowApiModal(false)} />}
     </div>
+  );
+}
+
+// 次のアクション（問診票・病院マップ・予約準備）
+function NextActions({ t, active, onSelect }) {
+  const items = [
+    { key: 'intake', icon: FileText, title: t.featIntake, desc: t.featIntakeDesc },
+    { key: 'map', icon: MapPin, title: t.featMap, desc: t.featMapDesc },
+    { key: 'booking', icon: CalendarClock, title: t.featBooking, desc: t.featBookingDesc },
+  ];
+  return (
+    <section className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+      <h2 className="mb-3 flex items-center gap-2 font-bold text-slate-900">
+        <Sparkles size={18} className="text-sky-600" />
+        {t.nextTitle}
+      </h2>
+      <div className="grid gap-2">
+        {items.map((it) => {
+          const Icon = it.icon;
+          const isActive = active === it.key;
+          return (
+            <button
+              key={it.key}
+              onClick={() => onSelect(isActive ? null : it.key)}
+              className={[
+                'flex items-center gap-3 rounded-xl p-3 text-left transition',
+                isActive
+                  ? 'bg-sky-600 text-white'
+                  : 'bg-slate-50 text-slate-700 hover:bg-sky-50',
+              ].join(' ')}
+            >
+              <span
+                className={[
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                  isActive ? 'bg-white/20' : 'bg-white text-sky-600 ring-1 ring-slate-200',
+                ].join(' ')}
+              >
+                <Icon size={20} />
+              </span>
+              <span className="flex-1">
+                <span className="block font-semibold">{it.title}</span>
+                <span className={['block text-xs', isActive ? 'text-sky-50' : 'text-slate-400'].join(' ')}>
+                  {it.desc}
+                </span>
+              </span>
+              <ChevronRight size={18} className={isActive ? 'rotate-90 transition' : 'transition'} />
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
