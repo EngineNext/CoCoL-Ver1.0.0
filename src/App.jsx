@@ -18,7 +18,7 @@ import {
 import { analyzeSymptoms } from './symptomEngine';
 import { LANGUAGES, STRINGS } from './i18n';
 import ApiKeyModal from './ApiKeyModal';
-import IntakeForm from './IntakeForm';
+import IntakePanel from './IntakePanel';
 import HospitalMap from './HospitalMap';
 import BookingKit from './BookingKit';
 
@@ -279,10 +279,11 @@ export default function App() {
         {/* 選択された機能パネル */}
         {result && activeFeature === 'intake' && (
           <div className="mt-4">
-            <IntakeForm
+            <IntakePanel
               t={t}
               lang={lang}
               symptomText={analyzedText}
+              departmentJa={topDeptJa}
               onNeedKey={() => setShowApiModal(true)}
             />
           </div>

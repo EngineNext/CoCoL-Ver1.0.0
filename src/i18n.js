@@ -88,6 +88,16 @@ export const STRINGS = {
     intakeColItem: '項目',
     intakeColJa: '日本語（受付用）',
     intakeColUser: 'あなたの言語',
+    intakeModeFree: '選択式（無料・キー不要）',
+    intakeModeAI: 'AI自動作成（Claude）',
+    intakeFreeBadge: 'キー不要・無料',
+    intakeSelectPh: '選択してください',
+    intakeYes: 'はい',
+    intakeNo: 'いいえ',
+    intakeDetailPh: '詳しく（任意）',
+    intakeTranslating: '日本語に変換中…',
+    intakeUnanswered: '（未記入）',
+    intakeFreeNote: '自由入力欄は無料翻訳（MyMemory）で日本語化します。混雑時は原文のまま表示されることがあります。',
 
     // 病院マップ
     mapTitle: '近くの医療機関',
@@ -194,6 +204,17 @@ export const STRINGS = {
     intakeColItem: 'Field',
     intakeColJa: 'Japanese (for reception)',
     intakeColUser: 'Your language',
+    intakeModeFree: 'Multiple-choice (free, no key)',
+    intakeModeAI: 'AI auto-fill (Claude)',
+    intakeFreeBadge: 'No key · free',
+    intakeSelectPh: 'Select…',
+    intakeYes: 'Yes',
+    intakeNo: 'No',
+    intakeDetailPh: 'Details (optional)',
+    intakeTranslating: 'Translating to Japanese…',
+    intakeUnanswered: '(not provided)',
+    intakeFreeNote:
+      'Free-text fields are translated to Japanese with a free service (MyMemory). When busy, the original text may be shown as-is.',
 
     // Hospital map
     mapTitle: 'Nearby medical facilities',

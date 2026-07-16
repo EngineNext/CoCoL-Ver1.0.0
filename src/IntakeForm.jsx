@@ -38,10 +38,6 @@ export default function IntakeForm({ t, lang, symptomText, onNeedKey }) {
 
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-      <h2 className="mb-1 flex items-center gap-2 font-bold text-slate-900">
-        <FileText size={18} className="text-sky-600" />
-        {t.intakeTitle}
-      </h2>
       <p className="mb-3 text-xs text-slate-400">{t.poweredBy}</p>
 
       <label className="mb-1 block text-sm font-medium text-slate-700">{t.intakeExtraLabel}</label>
